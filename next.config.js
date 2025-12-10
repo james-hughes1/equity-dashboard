@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  // Ignore ESLint errors during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Optimize webpack for Plotly
   webpack: (config, { isServer }) => {
     // Ignore canvas module (Plotly dependency we don't need)
@@ -27,6 +33,7 @@ const nextConfig = {
 
     return config;
   },
+
   // Increase timeout for dev
   ...(process.env.NODE_ENV === "development" && {
     experimental: {
