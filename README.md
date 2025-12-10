@@ -1,6 +1,8 @@
 # Equity Signal Dashboard
 
-Creating a dashboard to show the results of a forward excess returns model.
+A dashboard to show the results of a model that generates alpha signals, currently for Starbucks (SBUX) stock.
+
+The model is developed in [this repo](https://github.com/james-hughes1/sbux-signal-model), and you can view the current live website [here](https://sbux-model.vercel.app/)
 
 ## Acknowledgements
 

@@ -11,11 +11,15 @@ import type { StrategyMetrics } from "@/lib/metrics";
 export default function StrategyPage() {
   const [data, setData] = useState<DataRow[]>([]);
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
-  const [threshold, setThreshold] = useState(0);
-  const [transactionCost, setTransactionCost] = useState(0.1);
-  const [metrics, setMetrics] = useState<StrategyMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Dual thresholds
+  const [buyThreshold, setBuyThreshold] = useState(0.0);
+  const [sellThreshold, setSellThreshold] = useState(-0.0);
+  const [transactionCost, setTransactionCost] = useState(0.1);
+  const [metrics, setMetrics] = useState<StrategyMetrics | null>(null);
+
+  // Load CSV + model JSON
   useEffect(() => {
     const csvFile = process.env.NEXT_PUBLIC_CSV_FILE || "dashboard_output.csv";
     const jsonFile = process.env.NEXT_PUBLIC_JSON_FILE || "model.json";
@@ -31,19 +35,19 @@ export default function StrategyPage() {
       });
   }, []);
 
+  // Recalculate strategy metrics when thresholds or transaction cost change
   useEffect(() => {
     if (data.length && modelInfo) {
       const strategyData = MetricsCalculator.calculateStrategyReturns(
         data,
         modelInfo,
-        threshold,
+        buyThreshold,
+        sellThreshold,
         transactionCost / 100,
       );
-      const calculatedMetrics =
-        MetricsCalculator.calculateStrategyMetrics(strategyData);
-      setMetrics(calculatedMetrics);
+      setMetrics(MetricsCalculator.calculateStrategyMetrics(strategyData));
     }
-  }, [data, modelInfo, threshold, transactionCost]);
+  }, [data, modelInfo, buyThreshold, sellThreshold, transactionCost]);
 
   if (loading || !data.length || !modelInfo) {
     return (
@@ -56,7 +60,8 @@ export default function StrategyPage() {
   const strategyData = MetricsCalculator.calculateStrategyReturns(
     data,
     modelInfo,
-    threshold,
+    buyThreshold,
+    sellThreshold,
     transactionCost / 100,
   );
 
@@ -86,40 +91,44 @@ export default function StrategyPage() {
         <h2 className="text-xl font-bold mb-6 text-primary">
           ⚙️ Strategy Parameters
         </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Threshold Slider */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Buy Threshold */}
           <div>
             <label className="block text-sm font-medium mb-2">
-              Signal Threshold: {threshold.toFixed(3)}
+              Buy Threshold: {buyThreshold.toFixed(3)}
             </label>
-            <p className="text-xs text-gray-400 mb-3">
-              Only enter positions when |predicted alpha| exceeds threshold
-            </p>
             <input
               type="range"
-              min="-0.05"
-              max="0.05"
+              min="0"
+              max="0.1"
               step="0.001"
-              value={threshold}
-              onChange={(e) => setThreshold(parseFloat(e.target.value))}
+              value={buyThreshold}
+              onChange={(e) => setBuyThreshold(parseFloat(e.target.value))}
               className="w-full h-2 bg-dark-bg rounded-lg appearance-none cursor-pointer accent-primary"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>-0.05</span>
-              <span>0</span>
-              <span>0.05</span>
-            </div>
           </div>
 
-          {/* Transaction Cost Slider */}
+          {/* Sell Threshold */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Sell Threshold: {sellThreshold.toFixed(3)}
+            </label>
+            <input
+              type="range"
+              min="-0.1"
+              max="0"
+              step="0.001"
+              value={sellThreshold}
+              onChange={(e) => setSellThreshold(parseFloat(e.target.value))}
+              className="w-full h-2 bg-dark-bg rounded-lg appearance-none cursor-pointer accent-primary"
+            />
+          </div>
+
+          {/* Transaction Cost */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Transaction Cost: {transactionCost.toFixed(2)}%
             </label>
-            <p className="text-xs text-gray-400 mb-3">
-              Cost incurred on each position change (buy/sell)
-            </p>
             <input
               type="range"
               min="0"
@@ -129,11 +138,6 @@ export default function StrategyPage() {
               onChange={(e) => setTransactionCost(parseFloat(e.target.value))}
               className="w-full h-2 bg-dark-bg rounded-lg appearance-none cursor-pointer accent-primary"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>0%</span>
-              <span>0.25%</span>
-              <span>0.5%</span>
-            </div>
           </div>
         </div>
       </div>

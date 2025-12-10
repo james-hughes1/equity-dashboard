@@ -67,7 +67,8 @@ export class MetricsCalculator {
   static calculateStrategyReturns(
     data: DataRow[],
     modelInfo: ModelInfo,
-    threshold: number = 0,
+    buyThreshold: number = 0.03,
+    sellThreshold: number = -0.03,
     transactionCost: number = 0.001,
   ): StrategyRow[] {
     const oosDate = new Date(modelInfo.oos_cutoff_date);
@@ -81,16 +82,22 @@ export class MetricsCalculator {
     for (let i = 0; i < oosData.length; i++) {
       const row = oosData[i];
 
-      // Generate signal based on threshold
-      const signal = row.pred_alpha_fwd_1 > threshold ? 1 : -1;
+      // Dual thresholds
+      let signal = 0;
+      if (row.pred_alpha_fwd_1 > buyThreshold) {
+        signal = 1;
+      } else if (row.pred_alpha_fwd_1 < sellThreshold) {
+        signal = -1;
+      }
 
       // Position change (for transaction costs)
       const position_change = Math.abs(signal - prevSignal);
 
-      // Calculate returns
+      // Stock return
       const stock_return =
         i > 0 ? (row.SBUX - oosData[i - 1].SBUX) / oosData[i - 1].SBUX : 0;
 
+      // Strategy return
       let strategy_return = i > 0 ? prevSignal * stock_return : 0;
       strategy_return -= position_change * transactionCost;
 
