@@ -1,0 +1,39 @@
+{
+    "walk_forward": {
+        "r2_oos": 0.008668523445206078,
+        "rmse_oos": 0.02182047093586294,
+        "n_oos": 72
+    },
+    "model_type": "ridge",
+    "model_params": {
+        "type": "ridge",
+        "alpha": 300.0,
+        "fit_intercept": true
+    },
+    "n_rows": 229,
+    "train_window": 156,
+    "horizon": 4,
+    "features_used": [
+        "alpha_lag1",
+        "alpha_lag2",
+        "alpha_lag4",
+        "alpha_lag8",
+        "alpha_ma4",
+        "alpha_ma12",
+        "fed_funds_rate_diff_1",
+        "2Y_treasury_diff_1",
+        "CPI_z_4",
+        "^VIX_diff_1",
+        "gt_interest",
+        "gt_interest_diff_1",
+        "gt_interest_z_8",
+        "SBUX_mom_4",
+        "SPY_mom_4",
+        "XLY_mom_4",
+        "MCD_mom_4",
+        "SPY"
+    ],
+    "target_col": "alpha_fwd_1",
+    "predicted_col": "pred_alpha_fwd_1",
+    "oos_cutoff_date": "2023-08-21 00:00:00"
+}
