@@ -12,7 +12,9 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAllData()
+    const csvFile = process.env.NEXT_PUBLIC_CSV_FILE || 'dashboard_output.csv';
+    const jsonFile = process.env.NEXT_PUBLIC_JSON_FILE || 'model.json';
+    loadAllData(csvFile, jsonFile)
       .then(({ data: csvData, modelInfo: info }) => {
         setData(csvData);
         setModelInfo(info);

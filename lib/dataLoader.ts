@@ -32,38 +32,31 @@ export interface DataRow {
 
 class DataLoader {
   private useApi: boolean;
-  private csvPath: string;
-  private jsonPath: string;
 
   constructor() {
-    // Use API route for S3 if NEXT_PUBLIC_USE_API=true
     this.useApi = process.env.NEXT_PUBLIC_USE_API === 'true';
-
-    // Local paths for public files, configurable via env vars
-    this.csvPath = process.env.NEXT_PUBLIC_CSV_PATH || '/data/dashboard_output.csv';
-    this.jsonPath = process.env.NEXT_PUBLIC_JSON_PATH || '/data/model.json';
   }
 
-  private async loadFromApi(filename: string): Promise<string> {
-    const response = await fetch(`/api/data?file=${filename}`);
-    if (!response.ok) {
-      throw new Error(`Failed to load ${filename}: ${response.statusText}`);
+  private async fetchFile(filename: string): Promise<string> {
+    if (this.useApi) {
+      // S3 via server API
+      const response = await fetch(`/api/data?file=${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${filename}: ${response.statusText}`);
+      }
+      return await response.text();
+    } else {
+      // Local public folder
+      const response = await fetch(`/data/${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${filename}: ${response.statusText}`);
+      }
+      return await response.text();
     }
-    return await response.text();
   }
 
-  private async loadFromPublic(path: string): Promise<string> {
-    const response = await fetch(path);
-    if (!response.ok) {
-      throw new Error(`Failed to load ${path}: ${response.statusText}`);
-    }
-    return await response.text();
-  }
-
-  async loadCSV(): Promise<DataRow[]> {
-    const csvContent = this.useApi
-      ? await this.loadFromApi(this.csvPath.replace(/^\/data\//, '')) // Strip /data/ for API filename
-      : await this.loadFromPublic(this.csvPath);
+  async loadCSV(filename: string): Promise<DataRow[]> {
+    const csvContent = await this.fetchFile(filename);
 
     return new Promise((resolve, reject) => {
       Papa.parse(csvContent, {
@@ -80,21 +73,21 @@ class DataLoader {
     });
   }
 
-  async loadModelInfo(): Promise<ModelInfo> {
-    const jsonContent = this.useApi
-      ? await this.loadFromApi(this.jsonPath.replace(/^\/data\//, '')) // Strip /data/ for API filename
-      : await this.loadFromPublic(this.jsonPath);
-
+  async loadModelInfo(filename: string): Promise<ModelInfo> {
+    const jsonContent = await this.fetchFile(filename);
     return JSON.parse(jsonContent);
   }
 
-  async loadAll(): Promise<{ data: DataRow[]; modelInfo: ModelInfo }> {
-    const [data, modelInfo] = await Promise.all([this.loadCSV(), this.loadModelInfo()]);
+  async loadAll(csvFilename: string, jsonFilename: string): Promise<{ data: DataRow[]; modelInfo: ModelInfo }> {
+    const [data, modelInfo] = await Promise.all([
+      this.loadCSV(csvFilename),
+      this.loadModelInfo(jsonFilename),
+    ]);
     return { data, modelInfo };
   }
 }
 
-// Singleton instance
+// Singleton
 let dataLoader: DataLoader | null = null;
 
 export function getDataLoader(): DataLoader {
@@ -104,7 +97,7 @@ export function getDataLoader(): DataLoader {
   return dataLoader;
 }
 
-export async function loadAllData() {
+export async function loadAllData(csvFilename: string, jsonFilename: string) {
   const loader = getDataLoader();
-  return await loader.loadAll();
+  return await loader.loadAll(csvFilename, jsonFilename);
 }
