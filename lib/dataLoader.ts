@@ -97,7 +97,7 @@ class DataLoader {
           data.sort((a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime());
           resolve(data);
         },
-        error: (error) => reject(error),
+        error: (err: unknown) => reject(err),
       });
     });
   }
