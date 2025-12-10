@@ -1,8 +1,4 @@
-/**
- * Data loading utilities for CSV and JSON
- */
 import Papa from 'papaparse';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
 export interface ModelInfo {
   walk_forward: {
@@ -35,45 +31,28 @@ export interface DataRow {
 }
 
 class DataLoader {
-  private useS3: boolean;
-  private s3Client?: S3Client;
-  private bucket?: string;
+  private useApi: boolean;
   private csvPath: string;
   private jsonPath: string;
 
   constructor() {
-    this.useS3 = process.env.NEXT_PUBLIC_USE_S3 === 'true';
+    // Use API route for S3 if NEXT_PUBLIC_USE_API=true
+    this.useApi = process.env.NEXT_PUBLIC_USE_API === 'true';
+
+    // Local paths for public files, configurable via env vars
     this.csvPath = process.env.NEXT_PUBLIC_CSV_PATH || '/data/dashboard_output.csv';
     this.jsonPath = process.env.NEXT_PUBLIC_JSON_PATH || '/data/model.json';
-
-    if (this.useS3) {
-      this.bucket = process.env.NEXT_PUBLIC_S3_BUCKET;
-      this.s3Client = new S3Client({
-        region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
-        credentials: {
-          accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY || '',
-        },
-      });
-    }
   }
 
-  private async loadFromS3(key: string): Promise<string> {
-    if (!this.s3Client || !this.bucket) {
-      throw new Error('S3 not configured');
+  private async loadFromApi(filename: string): Promise<string> {
+    const response = await fetch(`/api/data?file=${filename}`);
+    if (!response.ok) {
+      throw new Error(`Failed to load ${filename}: ${response.statusText}`);
     }
-
-    const command = new GetObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-    });
-
-    const response = await this.s3Client.send(command);
-    const str = await response.Body?.transformToString();
-    return str || '';
+    return await response.text();
   }
 
-  private async loadFromLocal(path: string): Promise<string> {
+  private async loadFromPublic(path: string): Promise<string> {
     const response = await fetch(path);
     if (!response.ok) {
       throw new Error(`Failed to load ${path}: ${response.statusText}`);
@@ -82,9 +61,9 @@ class DataLoader {
   }
 
   async loadCSV(): Promise<DataRow[]> {
-    const csvContent = this.useS3
-      ? await this.loadFromS3(this.csvPath)
-      : await this.loadFromLocal(this.csvPath);
+    const csvContent = this.useApi
+      ? await this.loadFromApi(this.csvPath.replace(/^\/data\//, '')) // Strip /data/ for API filename
+      : await this.loadFromPublic(this.csvPath);
 
     return new Promise((resolve, reject) => {
       Papa.parse(csvContent, {
@@ -93,29 +72,24 @@ class DataLoader {
         skipEmptyLines: true,
         complete: (results) => {
           const data = results.data as DataRow[];
-          // Sort by date
           data.sort((a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime());
           resolve(data);
         },
-        error: (err: unknown) => reject(err),
+        error: (error: unknown) => reject(error),
       });
     });
   }
 
   async loadModelInfo(): Promise<ModelInfo> {
-    const jsonContent = this.useS3
-      ? await this.loadFromS3(this.jsonPath)
-      : await this.loadFromLocal(this.jsonPath);
+    const jsonContent = this.useApi
+      ? await this.loadFromApi(this.jsonPath.replace(/^\/data\//, '')) // Strip /data/ for API filename
+      : await this.loadFromPublic(this.jsonPath);
 
     return JSON.parse(jsonContent);
   }
 
   async loadAll(): Promise<{ data: DataRow[]; modelInfo: ModelInfo }> {
-    const [data, modelInfo] = await Promise.all([
-      this.loadCSV(),
-      this.loadModelInfo(),
-    ]);
-
+    const [data, modelInfo] = await Promise.all([this.loadCSV(), this.loadModelInfo()]);
     return { data, modelInfo };
   }
 }
