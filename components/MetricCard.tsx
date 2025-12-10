@@ -10,7 +10,7 @@ export default function MetricCard({
   title,
   value,
   subtitle,
-  icon = '📊',
+  icon = "📊",
   valueColor,
 }: MetricCardProps) {
   return (
@@ -19,7 +19,7 @@ export default function MetricCard({
         <span>{icon}</span>
         <span className="font-medium">{title}</span>
       </div>
-      <div 
+      <div
         className="text-2xl md:text-4xl font-bold mb-1"
         style={valueColor ? { color: valueColor } : undefined}
       >

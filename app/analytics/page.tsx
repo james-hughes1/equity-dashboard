@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import ChartWrapper from '@/components/ChartWrapper';
-import { loadAllData } from '@/lib/dataLoader';
-import type { DataRow, ModelInfo } from '@/lib/dataLoader';
+import { useEffect, useState } from "react";
+import ChartWrapper from "@/components/ChartWrapper";
+import { loadAllData } from "@/lib/dataLoader";
+import type { DataRow, ModelInfo } from "@/lib/dataLoader";
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<DataRow[]>([]);
@@ -12,8 +12,8 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const csvFile = process.env.NEXT_PUBLIC_CSV_FILE || 'dashboard_output.csv';
-    const jsonFile = process.env.NEXT_PUBLIC_JSON_FILE || 'model.json';
+    const csvFile = process.env.NEXT_PUBLIC_CSV_FILE || "dashboard_output.csv";
+    const jsonFile = process.env.NEXT_PUBLIC_JSON_FILE || "model.json";
     loadAllData(csvFile, jsonFile)
       .then(({ data: csvData, modelInfo: info }) => {
         setData(csvData);
@@ -22,7 +22,7 @@ export default function AnalyticsPage() {
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
         setLoading(false);
       });
   }, []);
@@ -41,35 +41,41 @@ export default function AnalyticsPage() {
 
   const scatterData = [
     {
-      type: 'scatter',
-      mode: 'markers',
-      name: 'Predictions',
+      type: "scatter",
+      mode: "markers",
+      name: "Predictions",
       x: oosData.map((r) => r.alpha_fwd_1),
       y: oosData.map((r) => r.pred_alpha_fwd_1),
       marker: {
         size: 8,
         color: oosData.map((_, i) => i),
-        colorscale: 'Viridis',
+        colorscale: "Viridis",
         showscale: true,
-        colorbar: { title: 'Time' },
+        colorbar: { title: "Time" },
       },
       text: oosData.map((r) => new Date(r.Date).toLocaleDateString()),
       hovertemplate:
-        '<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>',
+        "<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>",
     },
     {
-      type: 'scatter',
-      mode: 'lines',
-      name: 'Perfect Prediction',
-      x: [Math.min(...oosData.map((r) => r.alpha_fwd_1)), Math.max(...oosData.map((r) => r.alpha_fwd_1))],
-      y: [Math.min(...oosData.map((r) => r.alpha_fwd_1)), Math.max(...oosData.map((r) => r.alpha_fwd_1))],
-      line: { color: 'red', dash: 'dash' },
+      type: "scatter",
+      mode: "lines",
+      name: "Perfect Prediction",
+      x: [
+        Math.min(...oosData.map((r) => r.alpha_fwd_1)),
+        Math.max(...oosData.map((r) => r.alpha_fwd_1)),
+      ],
+      y: [
+        Math.min(...oosData.map((r) => r.alpha_fwd_1)),
+        Math.max(...oosData.map((r) => r.alpha_fwd_1)),
+      ],
+      line: { color: "red", dash: "dash" },
     },
   ];
 
   // === Feature correlation heatmap ===
   const numericFeatures = selectedFeatures.filter((f) =>
-    data.every((r) => typeof r[f] === 'number')
+    data.every((r) => typeof r[f] === "number"),
   );
 
   const corrMatrix = numericFeatures.map((f1) =>
@@ -83,24 +89,26 @@ export default function AnalyticsPage() {
       const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
       const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
       const numerator = n * sumXY - sumX * sumY;
-      const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+      const denominator = Math.sqrt(
+        (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
+      );
       return denominator === 0 ? 0 : numerator / denominator;
-    })
+    }),
   );
 
   const heatmapData = [
     {
-      type: 'heatmap',
+      type: "heatmap",
       z: corrMatrix,
       x: selectedFeatures,
       y: selectedFeatures,
-      colorscale: 'RdBu',
+      colorscale: "RdBu",
       zmid: 0,
       text: corrMatrix.map((row) => row.map((val) => val.toFixed(2))),
-      texttemplate: '%{text}',
+      texttemplate: "%{text}",
       textfont: { size: 10 },
       showscale: true,
-      colorbar: { title: 'Corr' },
+      colorbar: { title: "Corr" },
     },
   ];
 
@@ -109,14 +117,29 @@ export default function AnalyticsPage() {
       {/* Model Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-          <h2 className="text-xl font-bold mb-4 text-primary">📊 Model Information</h2>
+          <h2 className="text-xl font-bold mb-4 text-primary">
+            📊 Model Information
+          </h2>
           <div className="space-y-2 text-sm">
-            <p><strong>Model Type:</strong> {modelInfo.model_type.toUpperCase()}</p>
-            <p><strong>Training Window:</strong> {modelInfo.train_window} weeks</p>
-            <p><strong>Horizon:</strong> {modelInfo.horizon} weeks</p>
-            <p><strong>Features:</strong> {modelInfo.features_used.length}</p>
-            <p><strong>Alpha:</strong> {modelInfo.model_params.alpha}</p>
-            <p><strong>OOS Cutoff:</strong> {new Date(modelInfo.oos_cutoff_date).toLocaleDateString()}</p>
+            <p>
+              <strong>Model Type:</strong> {modelInfo.model_type.toUpperCase()}
+            </p>
+            <p>
+              <strong>Training Window:</strong> {modelInfo.train_window} weeks
+            </p>
+            <p>
+              <strong>Horizon:</strong> {modelInfo.horizon} weeks
+            </p>
+            <p>
+              <strong>Features:</strong> {modelInfo.features_used.length}
+            </p>
+            <p>
+              <strong>Alpha:</strong> {modelInfo.model_params.alpha}
+            </p>
+            <p>
+              <strong>OOS Cutoff:</strong>{" "}
+              {new Date(modelInfo.oos_cutoff_date).toLocaleDateString()}
+            </p>
           </div>
         </div>
 
@@ -125,9 +148,9 @@ export default function AnalyticsPage() {
           <ChartWrapper
             data={scatterData}
             layout={{
-              title: { text: 'Predicted vs Actual Alpha (OOS)' },
-              xaxis: { title: 'Actual Alpha' },
-              yaxis: { title: 'Predicted Alpha' },
+              title: { text: "Predicted vs Actual Alpha (OOS)" },
+              xaxis: { title: "Actual Alpha" },
+              yaxis: { title: "Predicted Alpha" },
               autosize: true,
               margin: { t: 30, l: 50, r: 20, b: 40 },
             }}
@@ -137,15 +160,22 @@ export default function AnalyticsPage() {
 
       {/* Feature Correlation */}
       <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4 text-primary">🔗 Feature Correlations</h2>
+        <h2 className="text-xl font-bold mb-4 text-primary">
+          🔗 Feature Correlations
+        </h2>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Select Features:</label>
+          <label className="block text-sm font-medium mb-2">
+            Select Features:
+          </label>
           <select
             multiple
             value={selectedFeatures}
             onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+              const selected = Array.from(
+                e.target.selectedOptions,
+                (option) => option.value,
+              );
               setSelectedFeatures(selected);
             }}
             className="w-full bg-dark-bg border border-dark-border rounded p-2 text-sm max-h-32"
@@ -156,13 +186,15 @@ export default function AnalyticsPage() {
               </option>
             ))}
           </select>
-          <p className="text-xs text-gray-400 mt-1">Hold Ctrl/Cmd to select multiple</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Hold Ctrl/Cmd to select multiple
+          </p>
         </div>
 
         <ChartWrapper
           data={heatmapData}
           layout={{
-            title: 'Feature Correlation Matrix',
+            title: "Feature Correlation Matrix",
             autosize: true,
             margin: { t: 40, l: 50, r: 50, b: 50 },
           }}

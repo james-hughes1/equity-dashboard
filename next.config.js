@@ -6,17 +6,17 @@ const nextConfig = {
     // Ignore canvas module (Plotly dependency we don't need)
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
-    
+
     // Optimize chunks
     if (!isServer) {
       config.optimization.splitChunks = {
-        chunks: 'all',
+        chunks: "all",
         cacheGroups: {
           default: false,
           vendors: false,
           // Plotly in its own chunk
           plotly: {
-            name: 'plotly',
+            name: "plotly",
             test: /[\\/]node_modules[\\/](plotly\.js-basic-dist-min)[\\/]/,
             priority: 10,
             enforce: true,
@@ -24,15 +24,15 @@ const nextConfig = {
         },
       };
     }
-    
+
     return config;
   },
   // Increase timeout for dev
-  ...(process.env.NODE_ENV === 'development' && {
+  ...(process.env.NODE_ENV === "development" && {
     experimental: {
       webpackBuildWorker: true,
     },
   }),
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import MetricCard from '@/components/MetricCard';
-import ChartWrapper from '@/components/ChartWrapper';
-import { loadAllData } from '@/lib/dataLoader';
-import { MetricsCalculator } from '@/lib/metrics';
-import type { DataRow, ModelInfo } from '@/lib/dataLoader';
-import type { StrategyMetrics } from '@/lib/metrics';
+import { useEffect, useState } from "react";
+import MetricCard from "@/components/MetricCard";
+import ChartWrapper from "@/components/ChartWrapper";
+import { loadAllData } from "@/lib/dataLoader";
+import { MetricsCalculator } from "@/lib/metrics";
+import type { DataRow, ModelInfo } from "@/lib/dataLoader";
+import type { StrategyMetrics } from "@/lib/metrics";
 
 export default function StrategyPage() {
   const [data, setData] = useState<DataRow[]>([]);
@@ -17,8 +17,8 @@ export default function StrategyPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const csvFile = process.env.NEXT_PUBLIC_CSV_FILE || 'dashboard_output.csv';
-    const jsonFile = process.env.NEXT_PUBLIC_JSON_FILE || 'model.json';
+    const csvFile = process.env.NEXT_PUBLIC_CSV_FILE || "dashboard_output.csv";
+    const jsonFile = process.env.NEXT_PUBLIC_JSON_FILE || "model.json";
     loadAllData(csvFile, jsonFile)
       .then(({ data: csvData, modelInfo: info }) => {
         setData(csvData);
@@ -26,7 +26,7 @@ export default function StrategyPage() {
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error loading data:', error);
+        console.error("Error loading data:", error);
         setLoading(false);
       });
   }, []);
@@ -37,9 +37,10 @@ export default function StrategyPage() {
         data,
         modelInfo,
         threshold,
-        transactionCost / 100
+        transactionCost / 100,
       );
-      const calculatedMetrics = MetricsCalculator.calculateStrategyMetrics(strategyData);
+      const calculatedMetrics =
+        MetricsCalculator.calculateStrategyMetrics(strategyData);
       setMetrics(calculatedMetrics);
     }
   }, [data, modelInfo, threshold, transactionCost]);
@@ -56,25 +57,25 @@ export default function StrategyPage() {
     data,
     modelInfo,
     threshold,
-    transactionCost / 100
+    transactionCost / 100,
   );
 
   const chartData = [
     {
-      type: 'scatter',
-      mode: 'lines',
-      name: 'Strategy',
+      type: "scatter",
+      mode: "lines",
+      name: "Strategy",
       x: strategyData.map((r) => r.Date),
       y: strategyData.map((r) => r.cum_strategy),
-      line: { color: '#00cc96', width: 3 },
+      line: { color: "#00cc96", width: 3 },
     },
     {
-      type: 'scatter',
-      mode: 'lines',
-      name: 'Buy & Hold',
+      type: "scatter",
+      mode: "lines",
+      name: "Buy & Hold",
       x: strategyData.map((r) => r.Date),
       y: strategyData.map((r) => r.cum_benchmark),
-      line: { color: '#636efa', width: 2, dash: 'dash' },
+      line: { color: "#636efa", width: 2, dash: "dash" },
     },
   ];
 
@@ -82,8 +83,10 @@ export default function StrategyPage() {
     <div className="space-y-6">
       {/* Parameters */}
       <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6 text-primary">⚙️ Strategy Parameters</h2>
-        
+        <h2 className="text-xl font-bold mb-6 text-primary">
+          ⚙️ Strategy Parameters
+        </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Threshold Slider */}
           <div>
@@ -143,7 +146,7 @@ export default function StrategyPage() {
             value={`${metrics.total_return.toFixed(2)}%`}
             subtitle="Out-of-sample"
             icon="📈"
-            valueColor={metrics.total_return > 0 ? '#00ff00' : '#ff0000'}
+            valueColor={metrics.total_return > 0 ? "#00ff00" : "#ff0000"}
           />
           <MetricCard
             title="Benchmark Return"
@@ -156,7 +159,7 @@ export default function StrategyPage() {
             value={`${metrics.excess_return.toFixed(2)}%`}
             subtitle="Alpha generated"
             icon="⭐"
-            valueColor={metrics.excess_return > 0 ? '#00ff00' : '#ff0000'}
+            valueColor={metrics.excess_return > 0 ? "#00ff00" : "#ff0000"}
           />
           <MetricCard
             title="Sharpe Ratio"
@@ -172,11 +175,11 @@ export default function StrategyPage() {
         <ChartWrapper
           data={chartData}
           layout={{
-            title: 'Cumulative Returns: Strategy vs Buy & Hold',
-            xaxis: { title: 'Date' },
-            yaxis: { title: 'Cumulative Return' },
+            title: "Cumulative Returns: Strategy vs Buy & Hold",
+            xaxis: { title: "Date" },
+            yaxis: { title: "Cumulative Return" },
             height: 500,
-            hovermode: 'x unified',
+            hovermode: "x unified",
           }}
         />
       </div>
@@ -186,15 +189,21 @@ export default function StrategyPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-dark-card border border-dark-border rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Volatility</div>
-            <div className="text-2xl font-bold">{metrics.volatility.toFixed(2)}%</div>
+            <div className="text-2xl font-bold">
+              {metrics.volatility.toFixed(2)}%
+            </div>
           </div>
           <div className="bg-dark-card border border-dark-border rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Max Drawdown</div>
-            <div className="text-2xl font-bold text-red-400">{metrics.max_drawdown.toFixed(2)}%</div>
+            <div className="text-2xl font-bold text-red-400">
+              {metrics.max_drawdown.toFixed(2)}%
+            </div>
           </div>
           <div className="bg-dark-card border border-dark-border rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Win Rate</div>
-            <div className="text-2xl font-bold">{metrics.win_rate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold">
+              {metrics.win_rate.toFixed(1)}%
+            </div>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 /**
  * Performance metrics calculations
  */
-import { DataRow, ModelInfo } from './dataLoader';
+import { DataRow, ModelInfo } from "./dataLoader";
 
 export interface SignalMetrics {
   hit_rate: number;
@@ -34,7 +34,7 @@ export interface StrategyRow extends DataRow {
 export class MetricsCalculator {
   static calculateSignalMetrics(
     data: DataRow[],
-    modelInfo: ModelInfo
+    modelInfo: ModelInfo,
   ): SignalMetrics {
     const oosDate = new Date(modelInfo.oos_cutoff_date);
     const oosData = data.filter((row) => new Date(row.Date) >= oosDate);
@@ -51,7 +51,7 @@ export class MetricsCalculator {
     // Correlation
     const correlation = this.pearsonCorrelation(
       oosData.map((r) => r.alpha_fwd_1),
-      oosData.map((r) => r.pred_alpha_fwd_1)
+      oosData.map((r) => r.pred_alpha_fwd_1),
     );
 
     return {
@@ -68,7 +68,7 @@ export class MetricsCalculator {
     data: DataRow[],
     modelInfo: ModelInfo,
     threshold: number = 0,
-    transactionCost: number = 0.001
+    transactionCost: number = 0.001,
   ): StrategyRow[] {
     const oosDate = new Date(modelInfo.oos_cutoff_date);
     const oosData = data.filter((row) => new Date(row.Date) >= oosDate);
@@ -80,25 +80,24 @@ export class MetricsCalculator {
 
     for (let i = 0; i < oosData.length; i++) {
       const row = oosData[i];
-      
+
       // Generate signal based on threshold
       const signal = row.pred_alpha_fwd_1 > threshold ? 1 : -1;
-      
+
       // Position change (for transaction costs)
       const position_change = Math.abs(signal - prevSignal);
-      
+
       // Calculate returns
-      const stock_return = i > 0 
-        ? (row.SBUX - oosData[i - 1].SBUX) / oosData[i - 1].SBUX 
-        : 0;
-      
+      const stock_return =
+        i > 0 ? (row.SBUX - oosData[i - 1].SBUX) / oosData[i - 1].SBUX : 0;
+
       let strategy_return = i > 0 ? prevSignal * stock_return : 0;
       strategy_return -= position_change * transactionCost;
-      
+
       // Update cumulative returns
       cumStrategy *= 1 + strategy_return;
       cumBenchmark *= 1 + stock_return;
-      
+
       strategyData.push({
         ...row,
         signal,
@@ -108,14 +107,16 @@ export class MetricsCalculator {
         cum_strategy: cumStrategy,
         cum_benchmark: cumBenchmark,
       });
-      
+
       prevSignal = signal;
     }
 
     return strategyData;
   }
 
-  static calculateStrategyMetrics(strategyData: StrategyRow[]): StrategyMetrics {
+  static calculateStrategyMetrics(
+    strategyData: StrategyRow[],
+  ): StrategyMetrics {
     if (strategyData.length === 0) {
       return {
         total_return: 0,
@@ -129,7 +130,7 @@ export class MetricsCalculator {
     }
 
     const lastRow = strategyData[strategyData.length - 1];
-    
+
     // Total returns
     const total_return = (lastRow.cum_strategy - 1) * 100;
     const benchmark_return = (lastRow.cum_benchmark - 1) * 100;
@@ -139,7 +140,8 @@ export class MetricsCalculator {
     const returns = strategyData.map((r) => r.strategy_return);
     const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
     const variance =
-      returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / returns.length;
+      returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) /
+      returns.length;
     const volatility = Math.sqrt(variance) * Math.sqrt(52) * 100; // Annualized
     const sharpe_ratio = (mean / Math.sqrt(variance)) * Math.sqrt(52);
 
@@ -176,7 +178,9 @@ export class MetricsCalculator {
     const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
 
     const numerator = n * sumXY - sumX * sumY;
-    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    const denominator = Math.sqrt(
+      (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
+    );
 
     return denominator === 0 ? 0 : numerator / denominator;
   }

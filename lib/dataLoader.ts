@@ -1,4 +1,4 @@
-import Papa from 'papaparse';
+import Papa from "papaparse";
 
 export interface ModelInfo {
   walk_forward: {
@@ -34,7 +34,7 @@ class DataLoader {
   private useApi: boolean;
 
   constructor() {
-    this.useApi = process.env.NEXT_PUBLIC_USE_API === 'true';
+    this.useApi = process.env.NEXT_PUBLIC_USE_API === "true";
   }
 
   private async fetchFile(filename: string): Promise<string> {
@@ -65,7 +65,9 @@ class DataLoader {
         skipEmptyLines: true,
         complete: (results) => {
           const data = results.data as DataRow[];
-          data.sort((a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime());
+          data.sort(
+            (a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime(),
+          );
           resolve(data);
         },
         error: (error: unknown) => reject(error),
@@ -78,7 +80,10 @@ class DataLoader {
     return JSON.parse(jsonContent);
   }
 
-  async loadAll(csvFilename: string, jsonFilename: string): Promise<{ data: DataRow[]; modelInfo: ModelInfo }> {
+  async loadAll(
+    csvFilename: string,
+    jsonFilename: string,
+  ): Promise<{ data: DataRow[]; modelInfo: ModelInfo }> {
     const [data, modelInfo] = await Promise.all([
       this.loadCSV(csvFilename),
       this.loadModelInfo(jsonFilename),

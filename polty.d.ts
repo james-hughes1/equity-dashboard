@@ -1,5 +1,5 @@
 // Type declarations for plotly.js-basic-dist-min
-declare module 'plotly.js-basic-dist-min' {
+declare module "plotly.js-basic-dist-min" {
   export interface PlotlyDataLayout {
     [key: string]: any;
   }
@@ -23,14 +23,14 @@ declare module 'plotly.js-basic-dist-min' {
     root: HTMLElement | string,
     data: any[],
     layout?: PlotlyDataLayout,
-    config?: PlotlyConfig
+    config?: PlotlyConfig,
   ): Promise<PlotlyHTMLElement>;
 
   function react(
     root: HTMLElement | string,
     data: any[],
     layout?: PlotlyDataLayout,
-    config?: PlotlyConfig
+    config?: PlotlyConfig,
   ): Promise<PlotlyHTMLElement>;
 
   function purge(root: HTMLElement | string): void;

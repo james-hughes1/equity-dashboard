@@ -1,18 +1,18 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
-import Navigation from '@/components/Navigation'
+import "./globals.css";
+import { Inter } from "next/font/google";
+import Navigation from "@/components/Navigation";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'Alpha Signal Dashboard',
-  description: 'Professional quantitative trading dashboard',
-}
+  title: "Alpha Signal Dashboard",
+  description: "Professional quantitative trading dashboard",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" className="dark">
@@ -23,5 +23,5 @@ export default function RootLayout({
         </main>
       </body>
     </html>
-  )
+  );
 }
