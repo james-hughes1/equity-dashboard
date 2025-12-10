@@ -106,7 +106,7 @@ export default function OverviewPage() {
   ];
 
   const chartLayout = {
-    title: 'Stock Price with ML Signals',
+    title: { text: 'Stock Price with ML Signals' },
     xaxis: { title: 'Date' },
     yaxis: { title: 'Price ($)' },
     height: 600,
@@ -186,7 +186,7 @@ export default function OverviewPage() {
             },
           ]}
           layout={{
-            title: 'Predicted Alpha Signal',
+            title: { text: 'Predicted Alpha Signal' },
             xaxis: { title: 'Date' },
             yaxis: { title: 'Alpha' },
             height: 300,

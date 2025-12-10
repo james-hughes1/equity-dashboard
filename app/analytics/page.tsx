@@ -125,7 +125,7 @@ export default function AnalyticsPage() {
           <ChartWrapper
             data={scatterData}
             layout={{
-              title: 'Predicted vs Actual Alpha (OOS)',
+              title: { text: 'Predicted vs Actual Alpha (OOS)' },
               xaxis: { title: 'Actual Alpha' },
               yaxis: { title: 'Predicted Alpha' },
               autosize: true,
