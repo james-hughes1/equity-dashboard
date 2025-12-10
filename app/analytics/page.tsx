@@ -35,10 +35,10 @@ export default function AnalyticsPage() {
     );
   }
 
+  // === Predicted vs Actual scatter plot ===
   const oosDate = new Date(modelInfo.oos_cutoff_date);
   const oosData = data.filter((row) => new Date(row.Date) >= oosDate);
 
-  // Pred vs Actual scatter
   const scatterData = [
     {
       type: 'scatter',
@@ -54,7 +54,8 @@ export default function AnalyticsPage() {
         colorbar: { title: 'Time' },
       },
       text: oosData.map((r) => new Date(r.Date).toLocaleDateString()),
-      hovertemplate: '<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>',
+      hovertemplate:
+        '<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>',
     },
     {
       type: 'scatter',
@@ -66,29 +67,26 @@ export default function AnalyticsPage() {
     },
   ];
 
-  // Correlation heatmap
-  const calculateCorrelation = (x: number[], y: number[]): number => {
-    const n = x.length;
-    const sumX = x.reduce((a, b) => a + b, 0);
-    const sumY = y.reduce((a, b) => a + b, 0);
-    const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
-    const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
-    const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
-    const numerator = n * sumXY - sumX * sumY;
-    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
-    return denominator === 0 ? 0 : numerator / denominator;
-  };
+  // === Feature correlation heatmap ===
+  const numericFeatures = selectedFeatures.filter((f) =>
+    data.every((r) => typeof r[f] === 'number')
+  );
 
-  const corrMatrix: number[][] = [];
-  selectedFeatures.forEach((feature1) => {
-    const row: number[] = [];
-    selectedFeatures.forEach((feature2) => {
-      const values1 = data.map((r) => r[feature1]).filter((v) => typeof v === 'number') as number[];
-      const values2 = data.map((r) => r[feature2]).filter((v) => typeof v === 'number') as number[];
-      row.push(calculateCorrelation(values1, values2));
-    });
-    corrMatrix.push(row);
-  });
+  const corrMatrix = numericFeatures.map((f1) =>
+    numericFeatures.map((f2) => {
+      const x = data.map((r) => r[f1]) as number[];
+      const y = data.map((r) => r[f2]) as number[];
+      const n = x.length;
+      const sumX = x.reduce((a, b) => a + b, 0);
+      const sumY = y.reduce((a, b) => a + b, 0);
+      const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+      const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+      const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+      const numerator = n * sumXY - sumX * sumY;
+      const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+      return denominator === 0 ? 0 : numerator / denominator;
+    })
+  );
 
   const heatmapData = [
     {
@@ -100,7 +98,8 @@ export default function AnalyticsPage() {
       zmid: 0,
       text: corrMatrix.map((row) => row.map((val) => val.toFixed(2))),
       texttemplate: '%{text}',
-      textfont: { size: 8 },
+      textfont: { size: 10 },
+      showscale: true,
       colorbar: { title: 'Corr' },
     },
   ];
@@ -121,6 +120,7 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
+        {/* Predicted vs Actual Scatter */}
         <div className="md:col-span-2 bg-dark-card border border-dark-border rounded-lg p-4">
           <ChartWrapper
             data={scatterData}
@@ -128,7 +128,8 @@ export default function AnalyticsPage() {
               title: 'Predicted vs Actual Alpha (OOS)',
               xaxis: { title: 'Actual Alpha' },
               yaxis: { title: 'Predicted Alpha' },
-              height: 400,
+              autosize: true,
+              margin: { t: 30, l: 50, r: 20, b: 40 },
             }}
           />
         </div>
@@ -137,7 +138,7 @@ export default function AnalyticsPage() {
       {/* Feature Correlation */}
       <div className="bg-dark-card border border-dark-border rounded-lg p-6">
         <h2 className="text-xl font-bold mb-4 text-primary">🔗 Feature Correlations</h2>
-        
+
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Select Features:</label>
           <select
@@ -162,7 +163,8 @@ export default function AnalyticsPage() {
           data={heatmapData}
           layout={{
             title: 'Feature Correlation Matrix',
-            height: 500,
+            autosize: true,
+            margin: { t: 40, l: 50, r: 50, b: 50 },
           }}
         />
       </div>

@@ -20,7 +20,7 @@ export default function Navigation() {
             href="/" 
             className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
           >
-            🎯 Alpha Signal Dashboard
+            Modelling Alpha
           </Link>
           
           <div className="flex space-x-1 md:space-x-4">

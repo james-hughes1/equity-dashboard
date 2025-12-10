@@ -1,59 +1,66 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import type Plotly from 'plotly.js';
 
 interface ChartWrapperProps {
   data: any[];
-  layout: any;
+  layout?: any;
   config?: any;
   className?: string;
 }
 
 export default function ChartWrapper({ data, layout, config, className }: ChartWrapperProps) {
-  const [Plotly, setPlotly] = useState<any>(null);
+  const [PlotlyModule, setPlotlyModule] = useState<typeof Plotly | null>(null);
   const plotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Dynamically import Plotly only on client-side
-    import('plotly.js-basic-dist-min').then((module) => {
-      setPlotly(module.default);
+    import('plotly.js').then((module) => {
+      setPlotlyModule(module);
     });
   }, []);
 
   useEffect(() => {
-    if (Plotly && plotRef.current && data && layout) {
-      const defaultLayout = {
-        template: 'plotly_dark',
-        paper_bgcolor: '#161b22',
-        plot_bgcolor: '#0d1117',
-        font: { color: '#c9d1d9' },
-        xaxis: { gridcolor: '#30363d' },
-        yaxis: { gridcolor: '#30363d' },
-        autosize: true,
-        ...layout,
-      };
+    if (!PlotlyModule || !plotRef.current || !data) return;
 
-      const defaultConfig = {
-        displayModeBar: false,
-        responsive: true,
-        ...config,
-      };
+    const defaultLayout = {
+      paper_bgcolor: '#161b22',
+      plot_bgcolor: '#161b22',
+      font: { family: 'Inter, sans-serif', color: '#c9d1d9', size: 12 },
+      xaxis: { showgrid: true, gridcolor: 'rgba(255,255,255,0.05)', automargin: true },
+      yaxis: { showgrid: true, gridcolor: 'rgba(255,255,255,0.05)', automargin: true },
+      margin: { l: 50, r: 20, t: 30, b: 50 },
+      legend: {
+        orientation: 'h',
+        x: 0.02,
+        y: 1.05,
+        xanchor: 'left',
+        yanchor: 'bottom',
+        bgcolor: 'rgba(22, 27, 34, 0.6)',
+        font: { size: 11, color: '#c9d1d9' },
+      },
+      autosize: true,
+      ...layout,
+    };
 
-      Plotly.newPlot(plotRef.current, data, defaultLayout, defaultConfig);
+    const defaultConfig = {
+      displayModeBar: false,
+      responsive: true,
+      scrollZoom: true,
+      doubleClick: 'reset',
+      ...config,
+    };
 
-      // Handle window resize
-      const handleResize = () => {
-        if (plotRef.current) {
-          Plotly.Plots.resize(plotRef.current);
-        }
-      };
+    PlotlyModule.newPlot(plotRef.current, data, defaultLayout, defaultConfig);
 
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, [Plotly, data, layout, config]);
+    const handleResize = () => {
+      if (plotRef.current) PlotlyModule.Plots.resize(plotRef.current);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [PlotlyModule, data, layout, config]);
 
-  if (!Plotly) {
+  if (!PlotlyModule) {
     return (
       <div className={`${className} bg-dark-card border border-dark-border rounded-lg flex items-center justify-center h-96`}>
         <div className="text-gray-400">Loading chart...</div>

@@ -166,12 +166,12 @@ export default function OverviewPage() {
       </div>
 
       {/* Main Chart */}
-      <div className="bg-dark-card border border-dark-border rounded-lg p-4">
+      <div className="bg-dark-card border border-dark-border rounded-lg overflow-hidden">
         <ChartWrapper data={chartData} layout={chartLayout} />
       </div>
 
       {/* Alpha Predictions */}
-      <div className="bg-dark-card border border-dark-border rounded-lg p-4">
+      <div className="bg-dark-card border border-dark-border rounded-lg p-1">
         <ChartWrapper
           data={[
             {
