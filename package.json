@@ -12,7 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.478.0",
     "buffer": "^6.0.3",
-    "next": "14.0.4",
+    "next": "^14.2.35",
     "papaparse": "5.4.1",
     "plotly.js": "^3.3.0",
     "process": "^0.11.10",
@@ -40,12 +40,10 @@
   "lint-staged": {
     "*.{js,ts,tsx}": [
       "eslint --fix",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.{json,css,scss,md,html}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   }
 }
