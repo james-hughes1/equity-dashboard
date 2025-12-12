@@ -21,10 +21,7 @@ export default function OverviewPage() {
       .then(({ data: csvData, modelInfo: info }) => {
         setData(csvData);
         setModelInfo(info);
-        const calculatedMetrics = MetricsCalculator.calculateSignalMetrics(
-          csvData,
-          info,
-        );
+        const calculatedMetrics = MetricsCalculator.calculateSignalMetrics(csvData, info);
         setMetrics(calculatedMetrics);
         setLoading(false);
       })
@@ -109,9 +106,9 @@ export default function OverviewPage() {
   ];
 
   const chartLayout = {
-    title: { text: "Stock Price with ML Signals" },
-    xaxis: { title: "Date" },
-    yaxis: { title: "Price ($)" },
+    title: { text: "SBUX Stock Price with Alpha Signals" },
+    xaxis: { title: { text: "Date" } },
+    yaxis: { title: { text: "Price ($)" } },
     height: 600,
     hovermode: "x unified",
     shapes: [

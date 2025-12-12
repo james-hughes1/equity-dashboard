@@ -89,9 +89,7 @@ export default function AnalyticsPage() {
       const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
       const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
       const numerator = n * sumXY - sumX * sumY;
-      const denominator = Math.sqrt(
-        (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
-      );
+      const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
       return denominator === 0 ? 0 : numerator / denominator;
     }),
   );
@@ -117,9 +115,7 @@ export default function AnalyticsPage() {
       {/* Model Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-          <h2 className="text-xl font-bold mb-4 text-primary">
-            📊 Model Information
-          </h2>
+          <h2 className="text-xl font-bold mb-4 text-primary">📊 Model Information</h2>
           <div className="space-y-2 text-sm">
             <p>
               <strong>Model Type:</strong> {modelInfo.model_type.toUpperCase()}
@@ -149,8 +145,8 @@ export default function AnalyticsPage() {
             data={scatterData}
             layout={{
               title: { text: "Predicted vs Actual Alpha (OOS)" },
-              xaxis: { title: "Actual Alpha" },
-              yaxis: { title: "Predicted Alpha" },
+              xaxis: { title: { text: "Actual Alpha" } },
+              yaxis: { title: { text: "Predicted Alpha" } },
               autosize: true,
               margin: { t: 30, l: 50, r: 20, b: 40 },
             }}
@@ -160,34 +156,36 @@ export default function AnalyticsPage() {
 
       {/* Feature Correlation */}
       <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-4 text-primary">
-          🔗 Feature Correlations
-        </h2>
+        <h2 className="text-xl font-bold mb-4 text-primary">🔗 Feature Correlations</h2>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">
-            Select Features:
-          </label>
-          <select
-            multiple
-            value={selectedFeatures}
-            onChange={(e) => {
-              const selected = Array.from(
-                e.target.selectedOptions,
-                (option) => option.value,
+          <label className="block text-sm font-medium mb-2">Select Features:</label>
+
+          <div className="w-full bg-dark-bg border border-dark-border rounded p-2 text-sm max-h-32 overflow-y-auto space-y-1">
+            {modelInfo.features_used.map((feature) => {
+              const checked = selectedFeatures.includes(feature);
+              return (
+                <label key={feature} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => {
+                      if (checked) {
+                        setSelectedFeatures(selectedFeatures.filter((f) => f !== feature));
+                      } else {
+                        setSelectedFeatures([...selectedFeatures, feature]);
+                      }
+                    }}
+                    className="accent-primary"
+                  />
+                  <span>{feature}</span>
+                </label>
               );
-              setSelectedFeatures(selected);
-            }}
-            className="w-full bg-dark-bg border border-dark-border rounded p-2 text-sm max-h-32"
-          >
-            {modelInfo.features_used.map((feature) => (
-              <option key={feature} value={feature}>
-                {feature}
-              </option>
-            ))}
-          </select>
+            })}
+          </div>
+
           <p className="text-xs text-gray-400 mt-1">
-            Hold Ctrl/Cmd to select multiple
+            Select multiple features to include them in the model
           </p>
         </div>
 

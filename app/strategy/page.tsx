@@ -88,9 +88,7 @@ export default function StrategyPage() {
     <div className="space-y-6">
       {/* Parameters */}
       <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-        <h2 className="text-xl font-bold mb-6 text-primary">
-          ⚙️ Strategy Parameters
-        </h2>
+        <h2 className="text-xl font-bold mb-6 text-primary">⚙️ Strategy Parameters</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Buy Threshold */}
           <div>
@@ -179,9 +177,9 @@ export default function StrategyPage() {
         <ChartWrapper
           data={chartData}
           layout={{
-            title: "Cumulative Returns: Strategy vs Buy & Hold",
-            xaxis: { title: "Date" },
-            yaxis: { title: "Cumulative Return" },
+            title: { text: "Cumulative Returns: Strategy vs Buy & Hold" },
+            xaxis: { title: { text: "Date" } },
+            yaxis: { title: { text: "Cumulative Return" } },
             height: 500,
             hovermode: "x unified",
           }}
@@ -193,9 +191,7 @@ export default function StrategyPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-dark-card border border-dark-border rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Volatility</div>
-            <div className="text-2xl font-bold">
-              {metrics.volatility.toFixed(2)}%
-            </div>
+            <div className="text-2xl font-bold">{metrics.volatility.toFixed(2)}%</div>
           </div>
           <div className="bg-dark-card border border-dark-border rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Max Drawdown</div>
@@ -205,9 +201,7 @@ export default function StrategyPage() {
           </div>
           <div className="bg-dark-card border border-dark-border rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Win Rate</div>
-            <div className="text-2xl font-bold">
-              {metrics.win_rate.toFixed(1)}%
-            </div>
+            <div className="text-2xl font-bold">{metrics.win_rate.toFixed(1)}%</div>
           </div>
         </div>
       )}
