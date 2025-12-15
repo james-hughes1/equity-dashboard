@@ -98,7 +98,7 @@ export default function StrategyPage() {
             <input
               type="range"
               min="0"
-              max="0.1"
+              max="0.05"
               step="0.001"
               value={buyThreshold}
               onChange={(e) => setBuyThreshold(parseFloat(e.target.value))}
@@ -113,7 +113,7 @@ export default function StrategyPage() {
             </label>
             <input
               type="range"
-              min="-0.1"
+              min="-0.05"
               max="0"
               step="0.001"
               value={sellThreshold}
@@ -180,6 +180,7 @@ export default function StrategyPage() {
             title: { text: "Cumulative Returns: Strategy vs Buy & Hold" },
             xaxis: { title: { text: "Date" } },
             yaxis: { title: { text: "Cumulative Return" } },
+            dragmode: false,
             height: 500,
             hovermode: "x unified",
           }}

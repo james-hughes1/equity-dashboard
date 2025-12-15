@@ -57,20 +57,6 @@ export default function AnalyticsPage() {
       hovertemplate:
         "<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>",
     },
-    {
-      type: "scatter",
-      mode: "lines",
-      name: "Perfect Prediction",
-      x: [
-        Math.min(...oosData.map((r) => r.alpha_fwd_1)),
-        Math.max(...oosData.map((r) => r.alpha_fwd_1)),
-      ],
-      y: [
-        Math.min(...oosData.map((r) => r.alpha_fwd_1)),
-        Math.max(...oosData.map((r) => r.alpha_fwd_1)),
-      ],
-      line: { color: "red", dash: "dash" },
-    },
   ];
 
   // === Feature correlation heatmap ===
@@ -148,6 +134,7 @@ export default function AnalyticsPage() {
               xaxis: { title: { text: "Actual Alpha" } },
               yaxis: { title: { text: "Predicted Alpha" } },
               autosize: true,
+              dragmode: false,
               margin: { t: 30, l: 50, r: 20, b: 40 },
             }}
           />
@@ -195,6 +182,7 @@ export default function AnalyticsPage() {
             title: "Feature Correlation Matrix",
             autosize: true,
             margin: { t: 40, l: 50, r: 50, b: 50 },
+            dragmode: false,
           }}
         />
       </div>

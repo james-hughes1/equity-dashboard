@@ -105,35 +105,6 @@ export default function OverviewPage() {
     },
   ];
 
-  const chartLayout = {
-    title: { text: "SBUX Stock Price with Alpha Signals" },
-    xaxis: { title: { text: "Date" } },
-    yaxis: { title: { text: "Price ($)" } },
-    height: 600,
-    hovermode: "x unified",
-    shapes: [
-      {
-        type: "line",
-        x0: oosDate.toISOString().split("T")[0],
-        x1: oosDate.toISOString().split("T")[0],
-        y0: 0,
-        y1: 1,
-        yref: "paper",
-        line: { color: "rgba(255, 255, 255, 0.5)", width: 2, dash: "dash" },
-      },
-    ],
-    annotations: [
-      {
-        x: oosDate.toISOString().split("T")[0],
-        y: 1,
-        yref: "paper",
-        text: "OOS Start",
-        showarrow: false,
-        yshift: 10,
-      },
-    ],
-  };
-
   return (
     <div className="space-y-6">
       {/* Metrics Grid */}
@@ -167,7 +138,61 @@ export default function OverviewPage() {
 
       {/* Main Chart */}
       <div className="bg-dark-card border border-dark-border rounded-lg overflow-hidden">
-        <ChartWrapper data={chartData} layout={chartLayout} />
+        <ChartWrapper
+          data={chartData}
+          dynamicYAxis={true}
+          layout={{
+            title: { text: "SBUX Stock Price with Alpha Signals" },
+            xaxis: {
+              title: { text: "Date" },
+              // Merge in ChartWrapper defaults
+              fixedrange: false,
+              rangeslider: { visible: false },
+              rangeselector: {
+                buttons: [
+                  { count: 3, label: "3M", step: "month", stepmode: "backward" },
+                  { count: 6, label: "6M", step: "month", stepmode: "backward" },
+                  { count: 1, label: "1Y", step: "year", stepmode: "backward" },
+                  { count: 2, label: "2Y", step: "year", stepmode: "backward" },
+                  { count: 5, label: "5Y", step: "year", stepmode: "backward" },
+                  { step: "all", label: "All" },
+                ],
+                bgcolor: "rgba(255,255,255,0)", // invisible background
+                font: { color: "#c9d1d9" },
+                activecolor: "rgba(255,255,255,0.2)",
+                bordercolor: "rgba(255,255,255,0.3)",
+              },
+            },
+            yaxis: {
+              title: { text: "Price ($)" },
+              fixedrange: true,
+            },
+            dragmode: "pan",
+            height: 600,
+            hovermode: "x unified",
+            shapes: [
+              {
+                type: "line",
+                x0: oosDate.toISOString().split("T")[0],
+                x1: oosDate.toISOString().split("T")[0],
+                y0: 0,
+                y1: 1,
+                yref: "paper",
+                line: { color: "rgba(255, 255, 255, 0.5)", width: 2, dash: "dash" },
+              },
+            ],
+            annotations: [
+              {
+                x: oosDate.toISOString().split("T")[0],
+                y: 1,
+                yref: "paper",
+                text: "OOS Start",
+                showarrow: false,
+                yshift: 10,
+              },
+            ],
+          }}
+        />
       </div>
 
       {/* Alpha Predictions */}
