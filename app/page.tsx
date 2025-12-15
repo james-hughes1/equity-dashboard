@@ -105,6 +105,26 @@ export default function OverviewPage() {
     },
   ];
 
+  const scatterData = [
+    {
+      type: "scatter",
+      mode: "markers",
+      name: "Predictions",
+      x: testData.map((r) => r.alpha_fwd_1),
+      y: testData.map((r) => r.pred_alpha_fwd_1),
+      marker: {
+        size: 8,
+        color: testData.map((_, i) => i),
+        colorscale: "Viridis",
+        showscale: true,
+        colorbar: { title: "Time" },
+      },
+      text: testData.map((r) => new Date(r.Date).toLocaleDateString()),
+      hovertemplate:
+        "<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Metrics Grid */}
@@ -194,27 +214,17 @@ export default function OverviewPage() {
           }}
         />
       </div>
-
-      {/* Alpha Predictions */}
-      <div className="bg-dark-card border border-dark-border rounded-lg p-1">
+      {/* Predicted vs Actual Scatter */}
+      <div className="md:col-span-2 bg-dark-card border border-dark-border rounded-lg p-4">
         <ChartWrapper
-          data={[
-            {
-              type: "scatter",
-              mode: "lines",
-              name: "Predicted Alpha",
-              x: testData.map((r) => r.Date),
-              y: testData.map((r) => r.pred_alpha_fwd_1),
-              fill: "tozeroy",
-              fillcolor: "rgba(255, 165, 0, 0.2)",
-              line: { color: "#ffa500", width: 2 },
-            },
-          ]}
+          data={scatterData}
           layout={{
-            title: { text: "Predicted Alpha Signal" },
-            xaxis: { title: "Date" },
-            yaxis: { title: "Alpha" },
-            height: 300,
+            title: { text: "Predicted vs Actual Alpha (OOS)" },
+            xaxis: { title: { text: "Actual Alpha" } },
+            yaxis: { title: { text: "Predicted Alpha" } },
+            autosize: true,
+            dragmode: false,
+            margin: { t: 30, l: 50, r: 20, b: 40 },
           }}
         />
       </div>

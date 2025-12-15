@@ -35,30 +35,6 @@ export default function AnalyticsPage() {
     );
   }
 
-  // === Predicted vs Actual scatter plot ===
-  const oosDate = new Date(modelInfo.oos_cutoff_date);
-  const oosData = data.filter((row) => new Date(row.Date) >= oosDate);
-
-  const scatterData = [
-    {
-      type: "scatter",
-      mode: "markers",
-      name: "Predictions",
-      x: oosData.map((r) => r.alpha_fwd_1),
-      y: oosData.map((r) => r.pred_alpha_fwd_1),
-      marker: {
-        size: 8,
-        color: oosData.map((_, i) => i),
-        colorscale: "Viridis",
-        showscale: true,
-        colorbar: { title: "Time" },
-      },
-      text: oosData.map((r) => new Date(r.Date).toLocaleDateString()),
-      hovertemplate:
-        "<b>Date:</b> %{text}<br><b>Actual:</b> %{x:.4f}<br><b>Predicted:</b> %{y:.4f}<extra></extra>",
-    },
-  ];
-
   // === Feature correlation heatmap ===
   const numericFeatures = selectedFeatures.filter((f) =>
     data.every((r) => typeof r[f] === "number"),
@@ -99,45 +75,27 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Model Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-dark-card border border-dark-border rounded-lg p-6">
-          <h2 className="text-xl font-bold mb-4 text-primary">📊 Model Information</h2>
-          <div className="space-y-2 text-sm">
-            <p>
-              <strong>Model Type:</strong> {modelInfo.model_type.toUpperCase()}
-            </p>
-            <p>
-              <strong>Training Window:</strong> {modelInfo.train_window} weeks
-            </p>
-            <p>
-              <strong>Horizon:</strong> {modelInfo.horizon} weeks
-            </p>
-            <p>
-              <strong>Features:</strong> {modelInfo.features_used.length}
-            </p>
-            <p>
-              <strong>Alpha:</strong> {modelInfo.model_params.alpha}
-            </p>
-            <p>
-              <strong>OOS Cutoff:</strong>{" "}
-              {new Date(modelInfo.oos_cutoff_date).toLocaleDateString()}
-            </p>
-          </div>
-        </div>
-
-        {/* Predicted vs Actual Scatter */}
-        <div className="md:col-span-2 bg-dark-card border border-dark-border rounded-lg p-4">
-          <ChartWrapper
-            data={scatterData}
-            layout={{
-              title: { text: "Predicted vs Actual Alpha (OOS)" },
-              xaxis: { title: { text: "Actual Alpha" } },
-              yaxis: { title: { text: "Predicted Alpha" } },
-              autosize: true,
-              dragmode: false,
-              margin: { t: 30, l: 50, r: 20, b: 40 },
-            }}
-          />
+      <div className="bg-dark-card border border-dark-border rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-4 text-primary">📊 Model Information</h2>
+        <div className="space-y-2 text-sm">
+          <p>
+            <strong>Model Type:</strong> {modelInfo.model_type.toUpperCase()}
+          </p>
+          <p>
+            <strong>Training Window:</strong> {modelInfo.train_window} weeks
+          </p>
+          <p>
+            <strong>Horizon:</strong> {modelInfo.horizon} weeks
+          </p>
+          <p>
+            <strong>Features:</strong> {modelInfo.features_used.length}
+          </p>
+          <p>
+            <strong>Alpha:</strong> {modelInfo.model_params.alpha}
+          </p>
+          <p>
+            <strong>OOS Cutoff:</strong> {new Date(modelInfo.oos_cutoff_date).toLocaleDateString()}
+          </p>
         </div>
       </div>
 
