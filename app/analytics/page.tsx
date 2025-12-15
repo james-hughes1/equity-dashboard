@@ -9,6 +9,8 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<DataRow[]>([]);
   const [modelInfo, setModelInfo] = useState<ModelInfo | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [feature1, setFeature1] = useState<string>("");
+  const [feature2, setFeature2] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,6 +21,11 @@ export default function AnalyticsPage() {
         setData(csvData);
         setModelInfo(info);
         setSelectedFeatures(info.features_used.slice(0, 5));
+        // Set default features for time series comparison
+        if (info.features_used.length >= 2) {
+          setFeature1(info.features_used[0]);
+          setFeature2(info.features_used[1]);
+        }
         setLoading(false);
       })
       .catch((error) => {
@@ -72,6 +79,45 @@ export default function AnalyticsPage() {
     },
   ];
 
+  // === Time series comparison chart ===
+  const timeSeriesData = [];
+
+  if (feature1) {
+    // Normalize feature1 data to 0-100 scale for comparison
+    const f1Values = data.map((r) => r[feature1]) as number[];
+    const f1Min = Math.min(...f1Values);
+    const f1Max = Math.max(...f1Values);
+    const f1Normalized = f1Values.map((v) => ((v - f1Min) / (f1Max - f1Min)) * 100);
+
+    timeSeriesData.push({
+      type: "scatter",
+      mode: "lines",
+      name: feature1,
+      x: data.map((r) => r.Date),
+      y: f1Normalized,
+      line: { color: "#636efa", width: 2 },
+      yaxis: "y",
+    });
+  }
+
+  if (feature2) {
+    // Normalize feature2 data to 0-100 scale for comparison
+    const f2Values = data.map((r) => r[feature2]) as number[];
+    const f2Min = Math.min(...f2Values);
+    const f2Max = Math.max(...f2Values);
+    const f2Normalized = f2Values.map((v) => ((v - f2Min) / (f2Max - f2Min)) * 100);
+
+    timeSeriesData.push({
+      type: "scatter",
+      mode: "lines",
+      name: feature2,
+      x: data.map((r) => r.Date),
+      y: f2Normalized,
+      line: { color: "#00cc96", width: 2 },
+      yaxis: "y",
+    });
+  }
+
   return (
     <div className="space-y-6">
       {/* Model Info */}
@@ -97,6 +143,85 @@ export default function AnalyticsPage() {
             <strong>OOS Cutoff:</strong> {new Date(modelInfo.oos_cutoff_date).toLocaleDateString()}
           </p>
         </div>
+      </div>
+
+      {/* Time Series Comparison */}
+      <div className="bg-dark-card border border-dark-border rounded-lg p-6">
+        <h2 className="text-xl font-bold mb-4 text-primary">📈 Feature Time Series Comparison</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Feature 1:</label>
+            <select
+              value={feature1}
+              onChange={(e) => setFeature1(e.target.value)}
+              className="w-full bg-dark-bg border border-dark-border rounded p-2 text-sm"
+            >
+              <option value="">Select a feature</option>
+              {modelInfo.features_used.map((feature) => (
+                <option key={feature} value={feature}>
+                  {feature}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Feature 2:</label>
+            <select
+              value={feature2}
+              onChange={(e) => setFeature2(e.target.value)}
+              className="w-full bg-dark-bg border border-dark-border rounded p-2 text-sm"
+            >
+              <option value="">Select a feature</option>
+              {modelInfo.features_used.map((feature) => (
+                <option key={feature} value={feature}>
+                  {feature}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-400 mb-4">
+          Note: Both features are normalized to 0-100 scale for visual comparison
+        </p>
+
+        {timeSeriesData.length > 0 && (
+          <ChartWrapper
+            data={timeSeriesData}
+            dynamicYAxis={true}
+            layout={{
+              title: { text: "Feature Comparison Over Time" },
+              xaxis: {
+                title: { text: "Date" },
+                fixedrange: false,
+                rangeslider: { visible: false },
+                rangeselector: {
+                  buttons: [
+                    { count: 3, label: "3M", step: "month", stepmode: "backward" },
+                    { count: 6, label: "6M", step: "month", stepmode: "backward" },
+                    { count: 1, label: "1Y", step: "year", stepmode: "backward" },
+                    { count: 2, label: "2Y", step: "year", stepmode: "backward" },
+                    { count: 5, label: "5Y", step: "year", stepmode: "backward" },
+                    { step: "all", label: "All" },
+                  ],
+                  bgcolor: "rgba(255,255,255,0)",
+                  font: { color: "#c9d1d9" },
+                  activecolor: "rgba(255,255,255,0.2)",
+                  bordercolor: "rgba(255,255,255,0.3)",
+                },
+              },
+              yaxis: {
+                title: { text: "Normalized Value (0-100)" },
+                fixedrange: true,
+              },
+              dragmode: "pan",
+              height: 500,
+              hovermode: "x unified",
+            }}
+          />
+        )}
       </div>
 
       {/* Feature Correlation */}
@@ -130,7 +255,7 @@ export default function AnalyticsPage() {
           </div>
 
           <p className="text-xs text-gray-400 mt-1">
-            Select multiple features to include them in the model
+            Select multiple features to include them in the correlation matrix
           </p>
         </div>
 
